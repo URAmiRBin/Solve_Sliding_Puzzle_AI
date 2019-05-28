@@ -41,7 +41,7 @@ class Problem(object):
 
     def result(self, pre_state, action):
         next_state = pre_state[:]
-        x, y = self.find(0, self.state)
+        x, y = self.find(0, next_state)
         if action is "up":
             next_state[x][y], next_state[x - 1][y] = next_state[x - 1][y], next_state[x][y]
         elif action is "down":

@@ -21,19 +21,20 @@ def bfs(given_problem):
             elif new_state == goal:
                 print("GOAL")
                 parents.append([new_state, parent, action])
-                path(parents)
+                for line in parents:
+                    print(line)
+                path(parents, deepcopy(goal))
                 return
             else:
                 parents.append([new_state, parent, action])
                 open_list.append(new_state)
         given_problem.state = open_list[0]
     print("DID IT")
-    path(parents)
+    path(parents, deepcopy(goal))
 
 
-def path(given_list):
+def path(given_list, find):
     restart = True
-    find = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
     action_sequence = []
     while restart:
         restart = False
@@ -45,15 +46,18 @@ def path(given_list):
                 break
     action_sequence = list(reversed(action_sequence))
     print(action_sequence)
+    return action_sequence
 
 
 def dfs(given_problem):
+    parents = [[deepcopy(given_problem.state), "NOP", "NOA"]]
     action_sequence = []
     open_list = []
     close_list = []
     open_list.append(given_problem.state)
     while not given_problem.goal_test():
-        close_list.append(open_list.pop())
+        parent = open_list.pop()
+        close_list.append(parent)
         available_actions = given_problem.actions()
         for action in available_actions:
             new_state = given_problem.result(deepcopy(given_problem.state), action)
@@ -61,8 +65,12 @@ def dfs(given_problem):
                 print("REPEAT")
             elif new_state == goal:
                 print("GOAL")
+                parents.append([new_state, parent, action])
+                for line in parents:
+                    print(line)
                 return
             else:
+                parents.append([new_state, parent, action])
                 latest_action = action
                 open_list.append(new_state)
         action_sequence.append(latest_action)
@@ -72,20 +80,24 @@ def dfs(given_problem):
 
 
 def bidirectional(given_problem):
+    parents = [[deepcopy(given_problem.state), "NOP", "NOA"]]
     open_list = []
     close_list = []
     open_list.append(given_problem.state)
 
+    goal_parents = [[deepcopy(goal), "NOP", "NOA"]]
     goal_open_list = []
     goal_close_list = []
     goal_open_list.append(deepcopy(goal))
     goal_state = deepcopy(goal)
 
     while True:
-        close_list.append(open_list.pop(0))
+        parent = open_list.pop(0)
+        close_list.append(parent)
         available_actions = given_problem.actions()
 
-        goal_close_list.append(goal_open_list.pop(0))
+        goal_parent = goal_open_list.pop(0)
+        goal_close_list.append(goal_parent)
         goal_available_actions = given_problem.public_actions(deepcopy(goal))
 
         for action in available_actions:
@@ -94,30 +106,68 @@ def bidirectional(given_problem):
                 print("REPEAT START")
             elif new_state == goal:
                 print("GOAL")
+                parents.append([new_state, parent, action])
                 return
             else:
+                parents.append([new_state, parent, action])
                 open_list.append(new_state)
 
         for action in goal_available_actions:
             goal_new_state = given_problem.result(deepcopy(goal_state), action)
             if goal_new_state in goal_close_list:
                 print("GOAL REPEAT")
-            elif interaction(deepcopy(goal_open_list), open_list):
+            elif interaction(deepcopy(goal_close_list), close_list):
+                found = w_interaction(deepcopy(goal_close_list), close_list)
                 print("BIGOAL")
+                goal_parents.append([goal_new_state, goal_parent, action])
+                mix(path(parents, found), path(goal_parents, found))
+                print("PARENTS")
+                for line in parents:
+                    print(line)
+                print("GOAL PARENTS")
+                for line in goal_parents:
+                    print(line)
                 return
             else:
+                goal_parents.append([goal_new_state, goal_parent, action])
                 goal_open_list.append(goal_new_state)
 
         goal_state = goal_open_list[0]
         given_problem.state = open_list[0]
 
 
+def mix(list1, list2):
+    action_sequence = []
+    for action in list1:
+        action_sequence.append(action)
+    list2 = list(reversed(list2))
+    for i in range(len(list2)):
+        if list2[i] == "up":
+            list2[i] = "down"
+        elif list2[i] == "down":
+            list2[i] = "up"
+        elif list2[i] == "left":
+            list2[i] = "right"
+        elif list2[i] == "right":
+            list2[i] = "left"
+        action_sequence.append(list2[i])
+    print(action_sequence)
+
+
 def interaction(first_list, second_list):
     for item in first_list:
             if item in second_list:
-                print("interaction found")
+                print("interaction found at", item)
                 return True
     return False
+
+
+def w_interaction(first_list, second_list):
+    for item in first_list:
+            if item in second_list:
+                print("interaction found at", item)
+                return item
+    return -1
 
 
 def uniform_cost(given_problem):

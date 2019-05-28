@@ -19,3 +19,5 @@ elif sys.argv[1] == "bi":
     algorithms.bidirectional(puzzle)
 elif sys.argv[1] == "uni":
     algorithms.uniform_cost(puzzle)
+elif sys.argv[1] == "log":
+    print(puzzle.result([[1, 2, 3], [4, 5, 6], [7, 8, 0]], "up"))
