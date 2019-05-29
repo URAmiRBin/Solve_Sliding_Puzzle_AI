@@ -1,6 +1,4 @@
-import problem
 from copy import deepcopy
-import queue
 
 goal = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
 
@@ -20,7 +18,6 @@ def bfs(given_problem):
                 print("REPEAT")
             elif new_state == goal:
                 print("GOAL")
-                parents.append([new_state, parent, action])
                 for line in parents:
                     print(line)
                 path(parents, deepcopy(goal))
@@ -185,3 +182,59 @@ def uniform_cost(given_problem):
                 open_list.append(new_state)
         given_problem.state = open_list[0]
     print("DID IT")
+
+
+def man_distance(state, target, given_problem):
+    distance = 0
+    for line in range(3):
+        for col in range(3):
+            if state[line][col] is not target[line][col]:
+                x, y = given_problem.find(state[line][col], deepcopy(target))
+                distance += abs(x - line) + abs(y - col)
+    return distance
+
+
+def find_best(list):
+    min = 100
+    min_id = 0
+    for item in range(len(list)):
+        if list[item][1] < min:
+            min = list[item][1]
+            min_id = item
+    print("BEST CHOICE IS ", list[min_id][0], " with distance ", min)
+    return min_id
+
+
+def parent_distance(parent, parents):
+    for i in range(len(parents)):
+        if parents[i][0] == parent:
+            return int(parents[i][3])
+    print("FUCK")
+
+
+def a_star(given_problem):
+    parents = [[deepcopy(given_problem.state), "NOP", "NOA", 0]]
+    open_list = []
+    close_list = []
+    open_list.append([given_problem.state, man_distance(given_problem.state, goal, given_problem)])
+    id = 0
+    while not given_problem.goal_test():
+        parent = open_list.pop(id)
+        close_list.append(parent[0])
+        available_actions = given_problem.actions()
+        for action in available_actions:
+            new_state = given_problem.result(deepcopy(given_problem.state), action)
+            if new_state in close_list:
+                print("REPEAT")
+            else:
+                x = parent_distance(parent[0], parents)
+                x += 1
+                parents.append([new_state, parent[0], action, x])
+                open_list.append([new_state, man_distance(new_state, goal, given_problem), x])
+        id = find_best(open_list)
+        given_problem.state = open_list[id][0]
+    parents.append([new_state, parent[0], action, 0])
+    for i in parents:
+        print(i)
+    print("DID IT")
+    path(parents, deepcopy(goal))

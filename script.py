@@ -1,6 +1,7 @@
 import problem
 import algorithms
 import sys
+from copy import deepcopy
 
 print("Initialization Phase")
 state = []
@@ -19,5 +20,11 @@ elif sys.argv[1] == "bi":
     algorithms.bidirectional(puzzle)
 elif sys.argv[1] == "uni":
     algorithms.uniform_cost(puzzle)
+elif sys.argv[1] == "as":
+    algorithms.a_star(puzzle)
 elif sys.argv[1] == "log":
-    print(puzzle.result([[1, 2, 3], [4, 5, 6], [7, 8, 0]], "up"))
+    parents = [[deepcopy(puzzle.state), "NOP", "NOA", 5]]
+    parent = deepcopy(puzzle.state)
+    x = algorithms.parent_distance(parent, parents)
+    x += 1
+    print(x)

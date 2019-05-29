@@ -56,7 +56,7 @@ class Problem(object):
     def find(c, state):
         for i, sublist in enumerate(state):
             if c in sublist:
-                return i, sublist.index(0)
+                return i, sublist.index(c)
         print("NOT FOUND")
         return -1
 
